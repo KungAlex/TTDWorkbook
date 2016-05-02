@@ -1,3 +1,5 @@
+git diff
 db.sqlite3
 __pycache__
 *.pyc
+.idea/workspace.xml
