@@ -31,29 +31,6 @@ class HomePageTest(TestCase):
         home_page(request)
         self.assertEqual(Item.objects.count(), 0)
 
-    def test_home_page_can_save_a_POST_request(self):
-        request = HttpRequest()
-        request.method = 'POST'
-        request.POST['item_text'] = 'A new list Item'
-
-        response = home_page(request)
-
-        self.assertEqual(Item.objects.count(), 1)
-        new_item = Item.objects.first()
-        self.assertEqual(new_item.text, 'A new list Item')
-
-    def test_home_page_redirects_after_POST(self):
-        request = HttpRequest()
-        request.method = 'POST'
-        request.POST['item_text'] = 'A new list Item'
-
-        response = home_page(request)
-
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], '/lists/the-only-list/')
-
-
-
         """
          #  observed_html = re.sub(csrf_regex, '', response.content.decode())
          #  AttributeError: 'NoneType' object has no attribute 'content'
@@ -125,3 +102,22 @@ class ListViewTest(TestCase):
 
         self.assertIn('itmem1', response.content.decode())
         self.assertIn('itmem2', response.content.decode())
+
+
+class NewListTest(TestCase):
+
+    def test_saving_a_POST_request(self):
+        self.client.post('/lists/new', data={'item_text': 'A new list Item'})
+
+        self.assertEqual(Item.objects.count(), 1)
+        new_item = Item.objects.first()
+        self.assertEqual(new_item.text, 'A new list Item')
+
+    def test_redirects_after_POST(self):
+
+        response = self.client.post('/lists/new', data={'item_text': 'A new list Item'})
+
+        self.assertRedirects(response, '/lists/the-only-list/')
+        ## ist das selbe wie
+        #self.assertEqual(response.status_code, 302)
+        #self.assertEqual(response['location'], '/lists/the-only-list/')
