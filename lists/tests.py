@@ -50,17 +50,8 @@ class HomePageTest(TestCase):
         response = home_page(request)
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], '/')
+        self.assertEqual(response['location'], '/lists/the-only-list/')
 
-    def test_home_page_displays_all_list_items(self):
-        Item.objects.create(text='itmem1')
-        Item.objects.create(text='itmem2')
-
-        request = HttpRequest()
-        response = home_page(request)
-
-        self.assertIn('itmem1', response.content.decode())
-        self.assertIn('itmem2', response.content.decode())
 
 
         """
@@ -90,8 +81,7 @@ class HomePageTest(TestCase):
 
         """
 
-
-# TODO more test
+        # TODO more test
 
 
 class ItemModelTest(TestCase):
@@ -105,10 +95,33 @@ class ItemModelTest(TestCase):
         second_item.text = 'second list item'
         second_item.save()
 
-        saved_items =Item.objects.all()
+        saved_items = Item.objects.all()
         self.assertEqual(saved_items.count(), 2)
 
         first_saved_item = saved_items[0]
         second_saved_item = saved_items[1]
         self.assertEqual(first_saved_item.text, 'the first (ever) list item')
         self.assertEqual(second_saved_item.text, 'second list item')
+
+
+class ListViewTest(TestCase):
+
+    def test_uses_list_template(self):
+        response = self.client.get('/lists/the-only-list/')
+        self.assertTemplateUsed(response, 'list.html')
+
+    def test_display_all_items(self):
+        Item.objects.create(text='itmem1')
+        Item.objects.create(text='itmem2')
+
+        response = self.client.get('/lists/the-only-list/')
+
+        text_file_expected = open("list_view.log", "w")
+        text_file_expected.write(response.content.decode())
+        text_file_expected.close()
+
+        ## dont work
+        #self.assertContains('itmem2',response)
+
+        self.assertIn('itmem1', response.content.decode())
+        self.assertIn('itmem2', response.content.decode())
