@@ -33,6 +33,8 @@ class NewVisitorTest(LiveServerTestCase):
         inputbox.send_keys('Buy peacock feathers')
         inputbox.send_keys(Keys.ENTER)
 
+        list_url=self.browser.current_url
+        self.assertRegex(list_url, '/lists/.+')
         self.check_for_row_in_list_table('1: Buy peacock feathers')
 
         # 2. Item anlegen
@@ -42,6 +44,29 @@ class NewVisitorTest(LiveServerTestCase):
 
         self.check_for_row_in_list_table('1: Buy peacock feathers')
         self.check_for_row_in_list_table('2: was anderes')
+
+        # new user
+        self.browser.quit()
+        self.browser =webdriver.Firefox()
+        self.browser.get(self.live_server_url)
+        page_text = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn('Buy peacock feathers', page_text)
+
+        # new Item
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox.send_keys('Milch')
+        inputbox.send_keys(Keys.ENTER)
+
+        new_list_url = self.browser.current_url
+        self.assertRegex( new_list_url, '/lists/.+')
+        self.assertNotEqual(new_list_url, list_url)
+
+        # again
+        page_text = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn('Buy peacock feathers', page_text)
+        page_text = self.browser.find_element_by_tag_name('body').text
+        self.assertIn('Milch', page_text)
+
 
         # reminder TODO
         self.fail('Finish the test!')
