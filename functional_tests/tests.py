@@ -1,9 +1,9 @@
 from selenium import webdriver
-from django.test import LiveServerTestCase
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium.webdriver.common.keys import Keys
 
 
-class NewVisitorTest(LiveServerTestCase):
+class NewVisitorTest(StaticLiveServerTestCase):
 
     def setUp(self):
         self.browser = webdriver.Firefox()
@@ -67,7 +67,8 @@ class NewVisitorTest(LiveServerTestCase):
         page_text = self.browser.find_element_by_tag_name('body').text
         self.assertIn('Milch', page_text)
 
-        # reminder TODO #self.fail('Finish the test!')
+        # reminder self.fail('Finish the test!')
+
     def test_layout_andstyling(self):
         self.browser.get(self.live_server_url)
         self.browser.set_window_size(1024, 768)
