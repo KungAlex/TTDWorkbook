@@ -67,6 +67,16 @@ class NewVisitorTest(LiveServerTestCase):
         page_text = self.browser.find_element_by_tag_name('body').text
         self.assertIn('Milch', page_text)
 
+        # reminder TODO #self.fail('Finish the test!')
+    def test_layout_andstyling(self):
+        self.browser.get(self.live_server_url)
+        self.browser.set_window_size(1024, 768)
 
-        # reminder TODO
-        self.fail('Finish the test!')
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        self.assertAlmostEqual(inputbox.location['x'] + inputbox.size['width'] / 2, 512, delta=5)
+
+        inputbox.send_keys('testing\n')
+
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        self.assertAlmostEqual(inputbox.location['x'] + inputbox.size['width'] / 2, 512, delta=5)
+
