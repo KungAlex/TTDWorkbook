@@ -14,7 +14,7 @@ class ItemValidationTest(FunctionalTest):
         self.assertEqual(error.text, "You can't have an empty list item")
 
         # add a not emtpy item
-        self.browser.find_element_by_id('id_new_item').send_keys('Milch')
+        self.browser.find_element_by_id('id_new_item').send_keys('Milch\n')
         self.check_for_row_in_list_table('1: Milch')
 
         # submit an empty item
@@ -26,7 +26,7 @@ class ItemValidationTest(FunctionalTest):
         self.assertEqual(error.text, "You can't have an empty list item")
 
         # And She can correct them
-        self.browser.find_element_by_id('id_new_item').send_keys('Tee')
+        self.browser.find_element_by_id('id_new_item').send_keys('Tee\n')
         self.check_for_row_in_list_table('1: Milch')
         self.check_for_row_in_list_table('2: Tee')
 
