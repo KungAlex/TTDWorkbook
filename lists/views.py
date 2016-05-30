@@ -9,8 +9,12 @@ def home_page(request):
     return render(request, 'home.html')
 
 
-def view_list(request, list_id):  # second argument from urls.py
+def view_list(request, list_id):  # second argument from urls.py ..bzw list.html template
     list_ = List.objects.get(id=list_id)
+    if request.method == 'POST':
+        Item.objects.create(text=request.POST['item_text'], list=list_)
+        return redirect('/lists/%d/' % (list_.id,))
+
     return render(request, 'list.html', {'list': list_})
 
 
@@ -21,13 +25,7 @@ def new_list(request):
         item.full_clean()
         item.save()
     except ValidationError:
-        list_.delete()
+        list_.delete()          # TODO: list wird nicht vollstaendig aus DB entfernt
         error = "You can't have an empty list item "
         return render(request, 'home.html', {'error':error})
     return redirect('/lists/%d/' % (list_.id,))  # warum immer das komma TODO
-
-
-def add_item(request, list_id):
-    list_ = List.objects.get(id=list_id)
-    Item.objects.create(text=request.POST['item_text'], list=list_)
-    return redirect('/lists/%d/' % (list_.id,))
