@@ -12,31 +12,27 @@ def home_page(request):
 
 def view_list(request, list_id):  # second argument from urls.py ..bzw list.html template
     list_ = List.objects.get(id=list_id)
-    error = None
+    form = ItemForm()
     if request.method == 'POST':
-        item = Item(text=request.POST['text'], list=list_)
-        try:
-            item.full_clean()
-            item.save()
+        form = ItemForm(data=request.POST)
+        if form.is_valid():
+            Item.objects.create(text=request.POST['text'], list=list_)
             return redirect(list_)
-        except ValidationError:
-            error = "You can't have an empty list item "
 
-    return render(request, 'list.html', {'list': list_, 'error': error})
+    return render(request, 'list.html', {
+        'list': list_, "form": form
+    })
 
 
 def new_list(request):
-    list_ = List.objects.create()
-    item = Item(text=request.POST['text'], list=list_)
-    error = None
-    try:
-        item.full_clean()
-        item.save()
+    form = ItemForm(data=request.POST)
+    if form.is_valid():
+        list_ = List.objects.create()
+        Item.objects.create(text=request.POST['text'], list=list_)
         return redirect(list_)
-    except ValidationError:
-        list_.delete()
-        error = "You can't have an empty list item "
 
-    # return redirect('/lists/%d/' % (list_.id,)) or
-    # return redirect('view_list', list_.id)
-    return render(request, 'home.html', {'error': error})
+    else:
+        return render(request, 'home.html', {'form': form})
+
+        # return redirect('/lists/%d/' % (list_.id,)) or
+        # return redirect('view_list', list_.id)
