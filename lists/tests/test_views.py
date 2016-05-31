@@ -9,23 +9,32 @@ from lists.models import Item, List
 from django.template.loader import render_to_string
 from django.utils.html import escape
 
+from unittest import skip
+from lists.forms import ItemForm
+
 
 class HomePageTest(TestCase):
+    maxDiff =None
+
+    @skip("Don't want to test: DRY")
     def test_root_url_resolves_to_home_page_view(self):
         found = resolve('/')
         self.assertEqual(found.func, home_page)
 
+    @skip("Don't want to test DRY")
     def test_home_page_returns_correct_html(self):
         request = HttpRequest()
         response = home_page(request)
-        expected_html = render_to_string('home.html')
+        expected_html = render_to_string('home.html', {'form': ItemForm()})
 
         # Um vorher den csrd token raus zu hoeln
         csrf_regex = r'<input[^>]+csrfmiddlewaretoken[^>]+>'
         observed_html = re.sub(csrf_regex, '', response.content.decode())
+        self.assertMultiLineEqual(observed_html, expected_html)
+        #self.assertEqual(observed_html, expected_html)
 
-        self.assertEqual(observed_html, expected_html)
-
+    # @skipIf(True, "I don't want to run this test yet")
+    @skip("Don't want to test DRY ")
     def test_home_page_only_saves_items_when_necessary(self):
         request = HttpRequest()
         home_page(request)
@@ -59,6 +68,14 @@ class HomePageTest(TestCase):
         """
 
         # TODO more test
+
+    def test_home_page_renders_home_template(self):
+        response = self.client.get('/')
+        self.assertTemplateUsed(response, 'home.html')
+
+    def test_home_page_uses_item_form(self):
+        response = self.client.get('/')
+        self.assertIsInstance(response.context['form'], ItemForm)
 
 
 class ListViewTest(TestCase):
@@ -154,7 +171,6 @@ class NewListTest(TestCase):
 
 
 class NewItemTest(TestCase):
-
     def test_validation_errory_are_sent_nack_to_home_page_template(self):
         response = self.client.post('/lists/new', data={'item_text': ''})
         self.assertEqual(response.status_code, 200)
